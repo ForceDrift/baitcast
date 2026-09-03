@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+#include <type_traits>
 #include <vector>
 namespace baitcast::detail {
 
@@ -14,7 +15,7 @@ namespace baitcast::detail {
     alignas(cache_line_size) std::vector<int64_t> buffer_{Capacity};
 
   public:
-    chase_lev_deque() = default;
+    chase_lev_deque() std::is_default_constructible<T> = default;
     // The owner thread reads its local write index
     //
     void push(T item) noexcept {
