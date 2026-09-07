@@ -1,1 +1,7 @@
-build/compile_commands.json
+[
+{
+  "directory": "/mnt/c/Users/Roshan/code/baitcast",
+  "command": "g++ -I/mnt/c/Users/Roshan/code/baitcast -std=gnu++20 -fsyntax-only /mnt/c/Users/Roshan/code/baitcast/test/test_align.cpp",
+  "file": "/mnt/c/Users/Roshan/code/baitcast/test/test_align.cpp"
+}
+]

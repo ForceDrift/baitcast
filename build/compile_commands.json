@@ -1,8 +1,7 @@
 [
 {
-  "directory": "/Users/roshaniruku/code/baitcast/build",
-  "command": "/usr/bin/c++  -I/Users/roshaniruku/code/baitcast -std=gnu++17 -arch arm64 -o CMakeFiles/test_align.dir/test/test_align.cpp.o -c /Users/roshaniruku/code/baitcast/test/test_align.cpp",
-  "file": "/Users/roshaniruku/code/baitcast/test/test_align.cpp",
-  "output": "CMakeFiles/test_align.dir/test/test_align.cpp.o"
+  "directory": "C:/Users/Roshan/code/baitcast/build-win",
+  "command": "C:\\Strawberry\\c\\bin\\g++.exe -IC:/Users/Roshan/code/baitcast -std=gnu++20 -o CMakeFiles\\test_align.dir\\test\\test_align.cpp.obj -c C:\\Users\\Roshan\\code\\baitcast\\test\\test_align.cpp",
+  "file": "C:/Users/Roshan/code/baitcast/test/test_align.cpp"
 }
 ]
