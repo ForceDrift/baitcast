@@ -1,3 +1,0 @@
-/Users/roshaniruku/code/baitcast/build/CMakeFiles/test_align.dir
-/Users/roshaniruku/code/baitcast/build/CMakeFiles/edit_cache.dir
-/Users/roshaniruku/code/baitcast/build/CMakeFiles/rebuild_cache.dir

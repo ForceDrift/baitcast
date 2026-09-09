@@ -1,7 +1,16 @@
 #include "baitcast/detail/align.hpp"
 
-int main() {
-  static_assert(baitcast::detail::cache_line_size > 0, "Cache line size must be positive");
+#include <gtest/gtest.h>
+
+namespace {
+static_assert(baitcast::detail::cache_line_size > 0, "Cache line size must be positive");
+} // namespace
+
+TEST(Align, CacheLineSizeIsPositive) {
+  EXPECT_GT(baitcast::detail::cache_line_size, 0u);
+}
+
+TEST(Align, CacheAlignedValueDefaultConstructs) {
   baitcast::detail::cache_aligned<int> val{};
-  return 0;
+  EXPECT_EQ(*val, 0);
 }
