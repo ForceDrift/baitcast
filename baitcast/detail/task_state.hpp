@@ -21,6 +21,8 @@ namespace baitcast::detail {
 
       return std::nullopt;
     }
+
+    void set_state(task_status state) noexcept { state_m = state; }
     // add more after
   };
 } // namespace baitcast::detail
