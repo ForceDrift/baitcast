@@ -6,8 +6,7 @@
 #include <optional>
 #include <utility>
 namespace baitcast::detail {
-
-  class [[nodiscard]] coroutine {
+  template <typename T> class [[nodiscard]] coroutine {
   public:
     struct promise_type {
 
