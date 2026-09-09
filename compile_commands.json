@@ -1,7 +1,12 @@
 [
-{
-  "directory": "/mnt/c/Users/Roshan/code/baitcast",
-  "command": "g++ -I/mnt/c/Users/Roshan/code/baitcast -std=gnu++20 -fsyntax-only /mnt/c/Users/Roshan/code/baitcast/test/test_align.cpp",
-  "file": "/mnt/c/Users/Roshan/code/baitcast/test/test_align.cpp"
-}
+  {
+    "directory": "/Users/roshaniruku/code/baitcast",
+    "command": "clang++ -std=gnu++26 -I/Users/roshaniruku/code/baitcast -fsyntax-only /Users/roshaniruku/code/baitcast/test/test_align.cpp",
+    "file": "/Users/roshaniruku/code/baitcast/test/test_align.cpp"
+  },
+  {
+    "directory": "/Users/roshaniruku/code/baitcast",
+    "command": "clang++ -std=gnu++26 -I/Users/roshaniruku/code/baitcast -fsyntax-only /Users/roshaniruku/code/baitcast/test/test_coroutine.cpp",
+    "file": "/Users/roshaniruku/code/baitcast/test/test_coroutine.cpp"
+  }
 ]

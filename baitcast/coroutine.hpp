@@ -1,23 +1,34 @@
 #include <coroutine>
 #include <cstddef>
 #include <exception>
-#include <future>
-#include <memory>
 #include <optional>
 #include <utility>
 namespace baitcast::detail {
   template <typename T> class [[nodiscard]] coroutine {
   public:
-    struct promise_type {
-
-      std::exception_ptr exception_m{nullptr};
-      coroutine get_ret_obj() noexcept { return coroutine{handle_type::from_promise(*this)}; }
-      std::suspend_always initial_suspend() const noexcept { return std::suspend_always{}; } // impl when task<T> is impl
-      std::suspend_always final_suspend() const noexcept { return std::suspend_always{}; }   // impl when task<T>  is impl
-      std::optional<std::exception_ptr> unhandled_exception() const noexcept { return std::current_exception(); };
-    };
+    struct promise_type;
 
     using handle_type = std::coroutine_handle<promise_type>;
+
+    struct promise_type {
+
+      std::optional<T> value_m{std::nullopt};
+      std::exception_ptr exception_m{nullptr};
+      std::coroutine_handle<> caller_m{nullptr};
+
+      [[nodiscard]] coroutine get_return_object() noexcept { return coroutine{handle_type::from_promise(*this)}; }
+      [[nodiscard]] std::suspend_always initial_suspend() const noexcept { return std::suspend_always{}; } // impl when task<T> is impl
+
+      struct final_awaiter {
+        [[nodiscard]] bool await_ready() const noexcept { return false; }
+        [[nodiscard]] std::coroutine_handle<> await_suspend(handle_type h) const noexcept { return h.promise().caller_m ? h.promise().caller_m : std::noop_coroutine(); }
+        void await_resume() const noexcept {}
+      };
+
+      [[nodiscard]] final_awaiter final_suspend() const noexcept { return {}; }
+      void return_value(T value) { value_m = std::move(value); }
+      void unhandled_exception() noexcept { exception_m = std::current_exception(); }
+    };
 
   private:
     handle_type handle_m{nullptr};
@@ -44,7 +55,28 @@ namespace baitcast::detail {
 
     coroutine(const coroutine &) = delete;
     coroutine &operator=(const coroutine &) = delete;
-    bool done() const noexcept { return handle_m ? handle_m.done() : true; }
+    [[nodiscard]] bool done() const noexcept { return handle_m ? handle_m.done() : true; }
+
+    [[nodiscard]] bool await_ready() const noexcept { return handle_m && handle_m.done(); }
+    [[nodiscard]] std::coroutine_handle<> await_suspend(std::coroutine_handle<> caller) noexcept {
+      handle_m.promise().caller_m = caller;
+      return handle_m;
+    }
+    [[nodiscard]] T await_resume() {
+      if (handle_m.promise().exception_m) {
+        std::rethrow_exception(handle_m.promise().exception_m);
+      }
+      return std::move(*handle_m.promise().value_m);
+    }
+
+    [[nodiscard]] handle_type handle() noexcept { return handle_m; }
+
+    [[nodiscard]] std::optional<T> result() const {
+      if (handle_m.promise().exception_m) {
+        std::rethrow_exception(handle_m.promise().exception_m);
+      }
+      return handle_m.promise().value_m;
+    }
 
     [[nodiscard]] std::optional<std::exception_ptr> exception() const noexcept {
       if (handle_m && handle_m.promise().exception_m) {

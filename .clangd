@@ -1,0 +1,6 @@
+CompileFlags:
+  Add:
+    - "-std=c++26"
+  Compiler: clang++
+  Remove:
+    - "-std=*"
