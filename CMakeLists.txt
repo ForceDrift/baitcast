@@ -1,14 +1,12 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.28)
 project(baitcast LANGUAGES CXX)
-
-set(CMAKE_CXX_STANDARD 26)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Generate compile_commands.json for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(baitcast INTERFACE)
 target_include_directories(baitcast INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_features(baitcast INTERFACE cxx_std_26)
 
 include(FetchContent)
 set(FETCHCONTENT_QUIET ON)
