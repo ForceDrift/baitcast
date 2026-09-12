@@ -27,3 +27,15 @@ add_test(NAME test_align COMMAND test_align)
 add_executable(test_coroutine test/test_coroutine.cpp)
 target_link_libraries(test_coroutine PRIVATE baitcast GTest::gtest_main)
 add_test(NAME test_coroutine COMMAND test_coroutine)
+
+add_executable(test_scope_state test/test_scope_state.cpp)
+target_link_libraries(test_scope_state PRIVATE baitcast GTest::gtest_main)
+add_test(NAME test_scope_state COMMAND test_scope_state)
+
+add_executable(test_task_registry test/test_task_registry.cpp)
+target_link_libraries(test_task_registry PRIVATE baitcast GTest::gtest_main)
+add_test(NAME test_task_registry COMMAND test_task_registry)
+
+add_executable(test_nursery test/test_nursery.cpp)
+target_link_libraries(test_nursery PRIVATE baitcast GTest::gtest_main)
+add_test(NAME test_nursery COMMAND test_nursery)

@@ -83,6 +83,8 @@ namespace baitcast::detail {
 
     [[nodiscard]] handle_type handle() noexcept { return handle_m; }
 
+    handle_type release_handle() noexcept { return std::exchange(handle_m, nullptr); }
+
     [[nodiscard]] std::optional<task_status> state() const noexcept { return handle_m ? handle_m.promise().task_state_m.state() : std::nullopt; }
 
     [[nodiscard]] std::optional<T> result() const {
