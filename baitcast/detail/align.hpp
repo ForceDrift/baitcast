@@ -19,12 +19,15 @@ namespace baitcast::detail {
    * */
 
   template <typename T> struct alignas(cache_line_size) cache_aligned {
+    static_assert(std::is_object_v<T>, "cache_aligned<T> requires an object type");
     T value;
     constexpr cache_aligned()
       requires std::is_default_constructible_v<T>
     = default;
 
-    template <typename... Args> constexpr explicit cache_aligned(Args &&...args) : value(std::forward<Args>(args)...) {}
+    template <typename... Args>
+      requires std::is_constructible_v<T, Args &&...>
+    constexpr explicit cache_aligned(Args &&...args) : value(std::forward<Args>(args)...) {}
 
     constexpr T &operator*() noexcept { return value; }
     constexpr const T &operator*() const noexcept { return value; }
@@ -32,8 +35,16 @@ namespace baitcast::detail {
     constexpr T &operator->() noexcept { return std::addressof(value); }
     constexpr const T &operator->() const noexcept { return std::addressof(value); }
 
-    constexpr T operator&() noexcept { return value; }
-    constexpr const T operator&() const noexcept { return value; }
+    [[nodiscard]] constexpr T operator&() noexcept
+      requires std::is_copy_constructible_v<T>
+    {
+      return value;
+    }
+    [[nodiscard]] constexpr const T operator&() const noexcept
+      requires std::is_copy_constructible_v<T>
+    {
+      return value;
+    }
   };
 
 }; // namespace baitcast::detail

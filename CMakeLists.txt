@@ -39,3 +39,15 @@ add_test(NAME test_task_registry COMMAND test_task_registry)
 add_executable(test_nursery test/test_nursery.cpp)
 target_link_libraries(test_nursery PRIVATE baitcast GTest::gtest_main)
 add_test(NAME test_nursery COMMAND test_nursery)
+
+add_executable(test_inplace_vector test/test_inplace_vector.cpp)
+target_link_libraries(test_inplace_vector PRIVATE baitcast GTest::gtest_main)
+add_test(NAME test_inplace_vector COMMAND test_inplace_vector)
+
+add_executable(test_scheduler_state test/test_scheduler_state.cpp)
+target_link_libraries(test_scheduler_state PRIVATE baitcast GTest::gtest_main)
+add_test(NAME test_scheduler_state COMMAND test_scheduler_state)
+
+add_executable(test_worker test/test_worker.cpp)
+target_link_libraries(test_worker PRIVATE baitcast GTest::gtest_main)
+add_test(NAME test_worker COMMAND test_worker)

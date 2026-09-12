@@ -39,6 +39,8 @@ namespace baitcast::detail {
 
     [[nodiscard]] constexpr bool is_closing() const noexcept { return closing_m; }
 
+    [[nodiscard]] constexpr bool can_spawn() const noexcept { return !closing_m; }
+
     [[nodiscard]] constexpr std::size_t active_children() const noexcept { return active_children_m; }
 
     [[nodiscard]] constexpr bool can_complete() const noexcept { return closing_m && active_children_m == 0; }

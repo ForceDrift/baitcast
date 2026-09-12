@@ -15,11 +15,8 @@ namespace baitcast::detail {
 
   public:
     constexpr std::optional<task_status> state() const noexcept {
-      if (std::is_enum_v<task_status>) {
-        return state_m;
-      }
-
-      return std::nullopt;
+      static_assert(std::is_enum_v<task_status>, "task_status must be an enumeration");
+      return state_m;
     }
 
     void set_state(task_status state) noexcept { state_m = state; }

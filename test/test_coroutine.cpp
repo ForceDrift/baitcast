@@ -2,14 +2,17 @@
 
 #include <gtest/gtest.h>
 
-baitcast::detail::coroutine<int> produce_value() {
-  co_return 42;
-}
+baitcast::detail::coroutine<int> produce_value() { co_return 42; }
 
 baitcast::detail::coroutine<int> consume_value() {
   int val = co_await produce_value();
   co_return val * 2;
 }
+
+static_assert(!std::is_copy_constructible_v<baitcast::detail::coroutine<int>>);
+static_assert(std::is_move_constructible_v<baitcast::detail::coroutine<int>>);
+static_assert(!std::is_copy_assignable_v<baitcast::detail::coroutine<int>>);
+static_assert(std::is_move_assignable_v<baitcast::detail::coroutine<int>>);
 
 TEST(Coroutine, ChainedCoAwaitCoReturn) {
   auto task = consume_value();

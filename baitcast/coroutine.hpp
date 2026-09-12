@@ -3,9 +3,14 @@
 #include <cstddef>
 #include <exception>
 #include <optional>
+#include <type_traits>
 #include <utility>
 namespace baitcast::detail {
   template <typename T> class [[nodiscard]] coroutine {
+    static_assert(std::is_object_v<T>, "coroutine<T> requires an object result type");
+    static_assert(std::is_copy_constructible_v<T>, "coroutine<T> requires a copy-constructible result type");
+    static_assert(std::is_move_assignable_v<T>, "coroutine<T> requires a move-assignable result type");
+
   public:
     struct promise_type;
 
@@ -51,6 +56,9 @@ namespace baitcast::detail {
     coroutine &operator=(coroutine &&other) noexcept {
       if (this != &other) {
         if (handle_m) {
+          if (!handle_m.done()) {
+            std::terminate();
+          }
           handle_m.destroy();
         }
         handle_m = std::exchange(other.handle_m, nullptr);
@@ -60,6 +68,9 @@ namespace baitcast::detail {
 
     ~coroutine() {
       if (handle_m) {
+        if (!handle_m.done()) {
+          std::terminate();
+        }
         handle_m.destroy();
       }
     };
@@ -83,7 +94,7 @@ namespace baitcast::detail {
 
     [[nodiscard]] handle_type handle() noexcept { return handle_m; }
 
-    handle_type release_handle() noexcept { return std::exchange(handle_m, nullptr); }
+    [[nodiscard]] handle_type release_handle() noexcept { return std::exchange(handle_m, nullptr); }
 
     [[nodiscard]] std::optional<task_status> state() const noexcept { return handle_m ? handle_m.promise().task_state_m.state() : std::nullopt; }
 
