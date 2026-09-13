@@ -1,12 +1,39 @@
 cmake_minimum_required(VERSION 3.28)
-project(baitcast LANGUAGES CXX)
+project(baitcast VERSION 0.1.0 LANGUAGES CXX)
 
 # Generate compile_commands.json for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(baitcast INTERFACE)
-target_include_directories(baitcast INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(baitcast INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_compile_features(baitcast INTERFACE cxx_std_26)
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+option(BAITCAST_INSTALL "Generate and install CMake package files" ${PROJECT_IS_TOP_LEVEL})
+
+if(BAITCAST_INSTALL)
+  install(TARGETS baitcast EXPORT baitcastTargets)
+  install(DIRECTORY baitcast DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+  install(
+    EXPORT baitcastTargets
+    FILE baitcastTargets.cmake
+    NAMESPACE baitcast::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/baitcast)
+  configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/baitcastConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/baitcastConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/baitcast)
+  write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/baitcastConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion)
+  install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/baitcastConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/baitcastConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/baitcast)
+endif()
 
 include(FetchContent)
 set(FETCHCONTENT_QUIET ON)
@@ -55,3 +82,7 @@ add_test(NAME test_worker COMMAND test_worker)
 add_executable(test_scheduler test/test_scheduler.cpp)
 target_link_libraries(test_scheduler PRIVATE baitcast GTest::gtest_main)
 add_test(NAME test_scheduler COMMAND test_scheduler)
+
+add_executable(test_chase_lev test/test_chase_lev.cpp)
+target_link_libraries(test_chase_lev PRIVATE baitcast GTest::gtest_main)
+add_test(NAME test_chase_lev COMMAND test_chase_lev)

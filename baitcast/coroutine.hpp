@@ -1,3 +1,4 @@
+#pragma once
 #include "detail/task_state.hpp"
 #include <coroutine>
 #include <cstddef>

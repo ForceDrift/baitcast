@@ -46,7 +46,12 @@ namespace baitcast::detail {
       cv_m.notify_all();
     }
 
-    void notify() noexcept { cv_m.notify_all(); }
+    // Acquires mutex_m so a waiter cannot miss the wakeup between its predicate check
+    // and registering on the condition variable.
+    void notify() noexcept {
+      std::lock_guard<std::mutex> lock{mutex_m};
+      cv_m.notify_all();
+    }
 
     [[nodiscard]] std::coroutine_handle<> dequeue(const std::atomic<bool> &stop) {
       std::unique_lock<std::mutex> lock{mutex_m};
