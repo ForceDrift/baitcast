@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <mutex>
 #include <stdexcept>
+#include <utility>
 
 namespace baitcast {
   // A basic single-worker scheduler with rescheduling and clean shutdown.
@@ -18,6 +19,7 @@ namespace baitcast {
 
   public:
     scheduler() : worker_m{state_m} {}
+    explicit scheduler(detail::cpu_set affinity) : worker_m{state_m, std::move(affinity)} {}
     scheduler(const scheduler &) = delete;
     scheduler &operator=(const scheduler &) = delete;
     scheduler(scheduler &&) = delete;
