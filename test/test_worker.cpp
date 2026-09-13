@@ -27,12 +27,6 @@ namespace {
     probe &operator=(const probe &) = delete;
     probe(probe &&) = delete;
     probe &operator=(probe &&) = delete;
-
-    ~probe() {
-      if (handle) {
-        handle.destroy();
-      }
-    }
   };
 
   // Suspends at initial_suspend; the body runs only once the worker resumes the handle.

@@ -1,4 +1,5 @@
 #pragma once
+#include "align.hpp"
 #include "inplace_vector.hpp"
 
 #include <atomic>
@@ -11,11 +12,14 @@
 namespace baitcast::detail {
   inline constexpr std::size_t max_pending = 256;
 
+  static_assert(conc_handoff_safe<std::coroutine_handle<>>(), "baitcast::scheduler_state: queue elements must be trivially copyable for lock-protected handoff");
+  static_assert(conc_alignment<std::coroutine_handle<>>() == alignof(std::coroutine_handle<>), "baitcast::scheduler_state: reflected alignment must match the compiler alignment");
+
   class scheduler_state {
     mutable std::mutex mutex_m;
     std::condition_variable cv_m;
     inplace_vector<std::coroutine_handle<>, max_pending> runnable_m;
-    bool shutdown_m = false;
+    cache_aligned<std::atomic<bool>> shutdown_m{false};
 
   public:
     scheduler_state() = default;
@@ -24,7 +28,7 @@ namespace baitcast::detail {
 
     void enqueue(std::coroutine_handle<> handle) {
       std::lock_guard<std::mutex> lock{mutex_m};
-      if (shutdown_m) {
+      if (shutdown_m.value.load(std::memory_order_acquire)) {
         throw std::logic_error{"baitcast::detail::scheduler_state: enqueue after shutdown"};
       }
       if (runnable_m.full()) {
@@ -37,7 +41,7 @@ namespace baitcast::detail {
     void shutdown() noexcept {
       {
         std::lock_guard<std::mutex> lock{mutex_m};
-        shutdown_m = true;
+        shutdown_m.value.store(true, std::memory_order_release);
       }
       cv_m.notify_all();
     }
@@ -46,7 +50,7 @@ namespace baitcast::detail {
 
     [[nodiscard]] std::coroutine_handle<> dequeue(const std::atomic<bool> &stop) {
       std::unique_lock<std::mutex> lock{mutex_m};
-      cv_m.wait(lock, [&]() { return stop.load(std::memory_order_acquire) || shutdown_m || !runnable_m.empty(); });
+      cv_m.wait(lock, [&]() { return stop.load(std::memory_order_acquire) || shutdown_m.value.load(std::memory_order_acquire) || !runnable_m.empty(); });
       if (runnable_m.empty()) {
         return std::coroutine_handle<>{};
       }
@@ -55,10 +59,7 @@ namespace baitcast::detail {
       return handle;
     }
 
-    [[nodiscard]] bool is_shutdown() const noexcept {
-      std::lock_guard<std::mutex> lock{mutex_m};
-      return shutdown_m;
-    }
+    [[nodiscard]] bool is_shutdown() const noexcept { return shutdown_m.value.load(std::memory_order_acquire); }
 
     [[nodiscard]] bool empty() const noexcept {
       std::lock_guard<std::mutex> lock{mutex_m};

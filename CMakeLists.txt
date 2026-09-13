@@ -51,3 +51,7 @@ add_test(NAME test_scheduler_state COMMAND test_scheduler_state)
 add_executable(test_worker test/test_worker.cpp)
 target_link_libraries(test_worker PRIVATE baitcast GTest::gtest_main)
 add_test(NAME test_worker COMMAND test_worker)
+
+add_executable(test_scheduler test/test_scheduler.cpp)
+target_link_libraries(test_scheduler PRIVATE baitcast GTest::gtest_main)
+add_test(NAME test_scheduler COMMAND test_scheduler)

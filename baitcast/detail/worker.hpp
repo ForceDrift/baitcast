@@ -1,4 +1,5 @@
 #pragma once
+#include "align.hpp"
 #include "scheduler_state.hpp"
 
 #include <atomic>
@@ -8,12 +9,15 @@
 namespace baitcast::detail {
   class worker {
     scheduler_state &state_m;
-    std::atomic<bool> stop_m{false};
+    cache_aligned<std::atomic<bool>> stop_m{false};
     std::thread thread_m;
 
     void run() {
-      for (std::coroutine_handle<> handle = state_m.dequeue(stop_m); handle; handle = state_m.dequeue(stop_m)) {
+      for (std::coroutine_handle<> handle = state_m.dequeue(stop_m.value); handle; handle = state_m.dequeue(stop_m.value)) {
         handle.resume();
+        if (handle.done()) {
+          handle.destroy();
+        }
       }
     }
 
@@ -26,7 +30,7 @@ namespace baitcast::detail {
     worker &operator=(worker &&) = delete;
 
     void request_stop() noexcept {
-      stop_m.store(true, std::memory_order_release);
+      stop_m.value.store(true, std::memory_order_release);
       state_m.notify();
     }
 
