@@ -110,22 +110,6 @@ int main() {
 }
 ```
 
-### chase_lev
-
-A bounded work-stealing deque: the owner pushes and pops on its bottom end, an arbitrary
-number of thieves steal from the top — all lock-free.
-
-```cpp
-#include <baitcast/detail/chase_lev.hpp>
-
-baitcast::detail::chase_lev<int, 64> deque;
-
-deque.push_bottom(1);
-deque.push_bottom(2);
-
-std::optional<int> local  = deque.pop_bottom();  // 2, LIFO for the owner
-std::optional<int> stolen = deque.steal();       // 1, FIFO for thieves
-```
 ### Future 
 
-many more feautres to come soon!
+Ther are more feautres to come soon!
