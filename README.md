@@ -3,12 +3,6 @@
 baitcast is a high-performance **C++26 structured concurrency library**. It gives you
 header-only building blocks for composing asynchronous work with coroutines:
 
-Everything is header-only, allocation-free core data structures included, and the public
-types use C++26 concepts and `constexpr` throughout.
-
-> Try it out on [Compiler Explorer](https://godbolt.org/z/dummy-baitcast) *(placeholder
-> link — real example coming soon)*.
-
 ## Requirements
 
 - A C++26 compiler: GCC 16 (or a clang with C++26 coroutine support).
@@ -113,22 +107,6 @@ int main() {
 }
 ```
 
-### chase_lev
-
-A bounded work-stealing deque: the owner pushes and pops on its bottom end, an arbitrary
-number of thieves steal from the top — all lock-free.
-
-```cpp
-#include <baitcast/detail/chase_lev.hpp>
-
-baitcast::detail::chase_lev<int, 64> deque;
-
-deque.push_bottom(1);
-deque.push_bottom(2);
-
-std::optional<int> local  = deque.pop_bottom();  // 2, LIFO for the owner
-std::optional<int> stolen = deque.steal();       // 1, FIFO for thieves
-```
 ### Future 
 
 many more feautres to come soon!
