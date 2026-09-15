@@ -23,7 +23,6 @@ namespace baitcast::detail {
 
   inline constexpr std::size_t max_cpus = 256;
 
-  // A capacity-bounded set of CPU ids. Never allocates; duplicates are ignored.
   class cpu_set {
   public:
     using value_type = cpu_id;
@@ -111,7 +110,6 @@ namespace baitcast::detail {
     return detected == 0 ? 1 : static_cast<cpu_id>(detected);
   }
 
-  // The set of CPUs the process may bind to.
   [[nodiscard]] cpu_set online_cpus() noexcept {
 #if defined(__linux__)
     cpu_set_t set{};
@@ -129,17 +127,12 @@ namespace baitcast::detail {
 #endif
     return cpu_set(cpu_count());
   }
-
-  // Maps a worker index onto the CPU set, cycling through it.
   [[nodiscard]] constexpr std::optional<cpu_id> cpu_for(cpu_id worker_index, const cpu_set &set) noexcept {
     if (set.empty()) {
       return std::nullopt;
     }
     return set[worker_index % set.size()];
   }
-
-  // Applies the CPU set to the calling thread; no-op for an empty set. Best effort on
-  // platforms without hard affinity (e.g. macOS uses an advisory affinity tag).
   [[nodiscard]] bool pin_current_thread(const cpu_set &cpus) noexcept {
     if (cpus.empty()) {
       return true;
@@ -156,8 +149,8 @@ namespace baitcast::detail {
     return ::pthread_setaffinity_np(::pthread_self(), sizeof(set), &set) == 0;
 #elif defined(__APPLE__)
     thread_affinity_policy_data_t policy{static_cast<integer_t>(cpus[0])};
-    return ::thread_policy_set(::pthread_mach_thread_np(::pthread_self()), THREAD_AFFINITY_POLICY,
-                               reinterpret_cast<thread_policy_t>(&policy), THREAD_AFFINITY_POLICY_COUNT) == KERN_SUCCESS;
+    return ::thread_policy_set(::pthread_mach_thread_np(::pthread_self()), THREAD_AFFINITY_POLICY, reinterpret_cast<thread_policy_t>(&policy), THREAD_AFFINITY_POLICY_COUNT) ==
+           KERN_SUCCESS;
 #elif defined(_WIN32)
     DWORD_PTR mask = 0;
     for (cpu_id cpu : cpus) {
@@ -173,8 +166,6 @@ namespace baitcast::detail {
 #endif
   }
 
-  // Process topology: detected CPUs plus a configurable allowed set. NUMA-aware
-  // organization and locality-aware stealing are deferred optimizations.
   class topology {
   public:
     explicit topology(cpu_set allowed = {}) : allowed_m(std::move(allowed)) {}
